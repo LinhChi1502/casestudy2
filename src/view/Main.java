@@ -32,6 +32,7 @@ public class Main {
         System.out.println("13. Borrow new book");
         System.out.println("14. Take book back");
         System.out.println("15. Show borrowing list");
+        System.out.println("16. Tim sach muon theo nguoi doc");
         System.out.println("-------------------------------------");
         System.out.println("0. Exit");
         System.out.println("-------------------------------------");
@@ -111,6 +112,7 @@ public class Main {
                 FileController.writeBookReaderToFile(BookReaderManager.bookReaderList, bookReaderFileName);
             }
             case 15 -> BookReaderManager.displayBookReader();
+            case 16 -> BookReaderManager.borrowBookManager();
             case 0 -> {
                 System.err.println("Thank you!");
                 System.exit(0);

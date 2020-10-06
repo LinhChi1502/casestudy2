@@ -4,10 +4,7 @@ import model.Book;
 import model.BookReader;
 import view.Main;
 
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class BookReaderManager {
     public static LinkedList<BookReader> bookReaderList = new LinkedList<>();
@@ -139,4 +136,29 @@ public class BookReaderManager {
             System.out.println(bookReader);
         }
     }
+
+    public static void borrowBookManager() {
+        LinkedList<BookReader> bookReadersListName = new LinkedList<>();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter reader ID: ");
+        int readerID = Integer.parseInt(scanner.nextLine());
+        for (BookReader bookReader: bookReaderList) {
+            if (bookReader.getReader().getReaderID() ==  readerID) {
+                System.out.println(bookReader);
+            }
+        }
+
+    }
 }
+//Collections.sort(arrayList, new Comparator<Map.Entry<Integer, Reader>>() {
+//            @Override
+//            public int compare(Map.Entry<Integer, Reader> o1, Map.Entry<Integer, Reader> o2) {
+//                String o1String = ConvertVieToEng.removeAccent(o1.getValue().getReaderName());
+//                String o2String = ConvertVieToEng.removeAccent(o2.getValue().getReaderName());
+//                return o1String.compareTo(o2String);
+//            }
+//        });
+//
+//        for (Map.Entry<Integer, Reader> entry : arrayList) {
+//            System.out.println(entry.getValue());
+//        }

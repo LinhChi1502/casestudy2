@@ -35,7 +35,7 @@ public class ReaderManager {
                     isExist = false;
                 }
             }
-        } while (!phoneNumber.matches("\\d{10}") || isExist);
+        } while (!phoneNumber.matches("\\d{3}.\\d{3}.\\d{4}") || isExist);
         String email;
         boolean isEmailExist = false;
         do {
@@ -45,11 +45,12 @@ public class ReaderManager {
                 if (readerEntry.getValue().getEmail().equals(email)) {
                     isEmailExist = true;
                     System.err.println("This email has already existed. Enter again!");
+                    break;
                 } else {
                     isEmailExist = false;
                 }
             }
-        } while (isEmailExist);
+        } while (isEmailExist || !email.matches("^(.*?)\\@gmail.com"));
 
         System.out.println("Enter address: ");
         String address = input.nextLine();
