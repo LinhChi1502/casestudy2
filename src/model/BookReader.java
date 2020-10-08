@@ -49,14 +49,11 @@ public class BookReader implements Serializable {
     public void setState(String state) {
         this.state = state;
     }
-
-    @Override
-    public String toString() {
-        return "reader ID = " + reader.getReaderID() + "|" +
-                "reader name = " + reader.getReaderName() + "|" +
-                "book ID = " + book.getBookID() + "|" +
-                "book name = " + book.getBookName() + "|" +
-                "borrowNum = " + borrowNum + "|" +
-                "state = " + state;
+    
+    public void outputInfo() {
+        System.out.printf("%-20s%-30s%-17s%-33s%-15s%-10s", "readerID = " + reader.getReaderID(),
+                "readerName = " + reader.getReaderName(), "bookID = " + book.getBookID(),
+                "bookName = " + book.getBookName(), "borrowNum = " + borrowNum, "state = " + state);
+        System.out.println("");
     }
 }

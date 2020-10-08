@@ -73,12 +73,9 @@ public class Reader implements Serializable {
         this.address = address;
     }
 
-    @Override
-    public String toString() {
-        return "readerID = " + readerID + "|" +
-                "readerName = " + readerName + "|" +
-                "phoneNumber = " + phoneNumber + "|" +
-                "email = " + email + "|" +
-                "address = " + address;
+    public void outputInfo() {
+        System.out.printf("%-17s%-35s%-30s%-30s%-15s", "readerId = " + readerID, "readerName = " + readerName,
+                "phoneNumber = " + phoneNumber, "email = " + email, "address = " + address);
+        System.out.println("");
     }
 }
