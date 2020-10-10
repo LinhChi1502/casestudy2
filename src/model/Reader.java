@@ -25,20 +25,12 @@ public class Reader implements Serializable {
         this.address = address;
     }
 
-    public static int getId() {
-        return id;
-    }
-
     public static void setId(int id) {
         Reader.id = id;
     }
 
     public int getReaderID() {
         return readerID;
-    }
-
-    public void setReaderID(int readerID) {
-        this.readerID = readerID;
     }
 
     public String getReaderName() {
@@ -76,6 +68,6 @@ public class Reader implements Serializable {
     public void outputInfo() {
         System.out.printf("%-17s%-35s%-30s%-30s%-15s", "readerId = " + readerID, "readerName = " + readerName,
                 "phoneNumber = " + phoneNumber, "email = " + email, "address = " + address);
-        System.out.println("");
+        System.out.println();
     }
 }

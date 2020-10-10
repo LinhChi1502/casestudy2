@@ -22,16 +22,8 @@ public class BookReader implements Serializable {
         return reader;
     }
 
-    public void setReader(Reader reader) {
-        this.reader = reader;
-    }
-
     public Book getBook() {
         return book;
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
     }
 
     public int getBorrowNum() {
@@ -41,19 +33,11 @@ public class BookReader implements Serializable {
     public void setBorrowNum(int borrowNum) {
         this.borrowNum = borrowNum;
     }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
     
     public void outputInfo() {
-        System.out.printf("%-20s%-30s%-17s%-33s%-15s%-10s", "readerID = " + reader.getReaderID(),
+        System.out.printf("%-20s%-35s%-17s%-33s%-15s%-10s", "readerID = " + reader.getReaderID(),
                 "readerName = " + reader.getReaderName(), "bookID = " + book.getBookID(),
                 "bookName = " + book.getBookName(), "borrowNum = " + borrowNum, "state = " + state);
-        System.out.println("");
+        System.out.println();
     }
 }

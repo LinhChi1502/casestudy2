@@ -10,219 +10,44 @@ import java.util.*;
 public class BookReaderManager {
     public static LinkedList<BookReader> bookReaderList = new LinkedList<>();
 
-    public static void borrowBook() {
-        try {
-            boolean isReaderExist = false;
-            int readerID;
-            Scanner scanner = new Scanner(System.in);
-            do {
-                ReaderManager.displayReaders();
-
-                System.out.println("Enter reader ID: ");
-                readerID = Integer.parseInt(scanner.nextLine());
-                Set<Map.Entry<Integer, Reader>> entries = ReaderManager.readerMap.entrySet();
-                for (Map.Entry<Integer, Reader> readerEntry : entries) {
-                    if (readerEntry.getValue().getReaderID() == readerID) {
-                        isReaderExist = true;
-                    }
-                }
-                if (isReaderExist == false) {
-                    System.err.println("There is no such reader!");
-                }
-            } while (!isReaderExist);
-
-
-            if (isReaderExist) {
-                // check xem reader có mượn quá 10 quyển không
-                boolean isTotalTrue = true;
-                int total = 0;
-
-                for (BookReader bookReader : bookReaderList) {
-                    if (bookReader.getReader().getReaderID() == readerID) {
-                        total += bookReader.getBorrowNum();
-                    }
-                }
-
-                if (total >= 10) {
-                    System.err.println("This reader borrowed 10 books!");
-                    isTotalTrue = false;
-                }
-
-
-                // nếu reader mượn ít hơn 10 quyển
-                int bookID;
-
-
-                if (isReaderExist && isTotalTrue) {
-                    int bookCount;
-                    boolean isBookBorrowAllow;
-                    boolean isBookExist;
-                    do {
-                        isBookBorrowAllow = true;
-                        BookManager.displayBooks();
-                        System.out.println("Enter book ID: ");
-                        bookID = Integer.parseInt(scanner.nextLine());
-
-                        // check nếu reader có mượn sách này quá 3 quyển không
-                        bookCount = 0;
-                        isBookExist = false;
-                        Set<Map.Entry<Integer, Book>> entries = BookManager.bookMap.entrySet();
-                        for (Map.Entry<Integer, Book> bookEntry : entries) {
-                            if (bookEntry.getValue().getBookID() == bookID) {
-                                isBookExist = true;
-                            }
-                        }
-                        if (isBookExist == false) {
-                            System.err.println("There is no such book!");
-                        }
-                        for (BookReader bookReader : bookReaderList) {
-                            if (bookReader.getReader().getReaderID() == readerID &&
-                                    bookReader.getBook().getBookID() == bookID) {
-                                bookCount += bookReader.getBorrowNum();
-                            }
-                        }
-                        if (bookCount >= 3) {
-                            System.err.println("This reader borrowed 3 of this books! Choose another book!");
-                            isBookBorrowAllow = false;
-                        }
-                    } while (isBookBorrowAllow == false || isBookExist == false);
-
-                    // nếu reader chưa mượn quyển này quá 3
-                    Book currentBook = BookManager.bookMap.get(bookID);
-                    int borrowNum;
-                    if (isBookBorrowAllow) {
-                        int bookLeft;
-                        do {
-                            bookLeft = currentBook.getQuantity();
-                            System.out.println("There are " + bookLeft + " of this books in library");
-                            System.out.println("Enter quantity to borrow (Reader can only borrow maximum of 3 each book): ");
-                            borrowNum = Integer.parseInt(scanner.nextLine());
-                        } while (borrowNum == 0 || (bookCount + borrowNum) > 3 || borrowNum > bookLeft);
-
-                        int stateChoice;
-                        String[] stateSet = {"new", "old"};
-                        do {
-                            System.out.println("Enter state of book:\n 1. new 2. old");
-                            stateChoice = Integer.parseInt(scanner.nextLine());
-                        } while (stateChoice < 1 || stateChoice > 2);
-                        String state = stateSet[stateChoice - 1];
-
-                        // tính phí mượn
-                        if (state.equals("new")) {
-                            System.out.println("bookName = " + currentBook.getBookName() + "\n"
-                                    + "number of borrow = " + borrowNum + "\n" +
-                                    "Fee = " + borrowNum * currentBook.getPrice() * 10 / 100);
-                        } else if (state.equals("old")) {
-                            System.out.println("bookName = " + currentBook.getBookName() + "\n"
-                                    + "number of borrow = " + borrowNum + "\n" +
-                                    "Fee = " + borrowNum * currentBook.getPrice() * 5 / 100);
-                        }
-
-                        BookReader bookReader = new BookReader(ReaderManager.readerMap.get(readerID),
-                                BookManager.bookMap.get(bookID),
-                                borrowNum, state);
-                        bookReaderList.add(bookReader);
-                        BookManager.bookMap.get(bookID).setQuantity(bookLeft - borrowNum);
-                        FileController.writeBookToFile(BookManager.bookMap, Main.bookFileName);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Your input is wrong! Do again!");
-        }
-
+    public static void borrowBook(int readerID, int bookID, int numOfBookToBorrow, String state) {
+        BookReader bookReader = new BookReader(ReaderManager.readerMap.get(readerID), BookManager.bookMap.get(bookID),
+                numOfBookToBorrow, state);
+        bookReaderList.add(bookReader);
     }
 
-    public static void returnBook() {
-        try {
-            boolean isReaderExist;
-            Scanner scanner = new Scanner(System.in);
-            int readerID;
-            do {
-                ReaderManager.displayReaders();
-                System.out.println("Enter reader ID: ");
-                readerID = Integer.parseInt(scanner.nextLine());
-                isReaderExist = false;
-                for (BookReader bookReader : bookReaderList) {
-                    if (bookReader.getReader().getReaderID() == readerID) {
-                        isReaderExist = true;
-                    }
-                }
-                if (isReaderExist == false) {
-                    System.err.println("There is no such reader!");
-                }
-            } while (!isReaderExist);
-
-
-            boolean isBookExist;
-            int bookID;
-            do {
-                for (BookReader bookReader : bookReaderList) {
-                    if (bookReader.getReader().getReaderID() == readerID) {
-                        bookReader.outputInfo();
-                    }
-                }
-                System.out.println("Enter book ID to take back: ");
-                bookID = Integer.parseInt(scanner.nextLine());
-                isBookExist = false;
-                for (BookReader bookReader : bookReaderList) {
-                    if (bookReader.getBook().getBookID() == bookID) {
-                        isBookExist = true;
-                    }
-                }
-                if (isBookExist == false) {
-                    System.err.println("There is no such book in reader's borrowing info!");
-                }
-            } while (!isBookExist);
-
-
-            int quantity;
-            int borrowNum = 0;
-            do {
-                System.out.println("Enter the quantity to take back: ");
-                quantity = Integer.parseInt(scanner.nextLine());
-                for (int i = 0; i < bookReaderList.size(); i++) {
-                    if (bookReaderList.get(i).getReader().getReaderID() == readerID) {
-                        if (bookReaderList.get(i).getBook().getBookID() == bookID) {
-                            borrowNum = bookReaderList.get(i).getBorrowNum();
-                        }
-                    }
-                }
-            } while (quantity <= 0 || quantity > borrowNum);
-
-
-            // xóa sách ra khỏi list mượn của bạn đọc
-            for (int i = 0; i < bookReaderList.size(); i++) {
-                if (bookReaderList.get(i).getReader().getReaderID() == readerID) {
-                    if (bookReaderList.get(i).getBook().getBookID() == bookID) {
-                        borrowNum = bookReaderList.get(i).getBorrowNum();
-                        if (borrowNum <= quantity) {
-                            quantity -= borrowNum;
-                            bookReaderList.remove(bookReaderList.get(i));
-                        } else {
-                            borrowNum = borrowNum - quantity;
-                            bookReaderList.get(i).setBorrowNum(borrowNum);
-                        }
-                    }
-                }
+    public static void returnBook(int readerID, int bookID, int numOfBookToReturn) {
+        //thêm sách trở lại thư viện
+        Set<Map.Entry<Integer, Book>> entries = BookManager.bookMap.entrySet();
+        for (Map.Entry<Integer, Book> bookEntry : entries) {
+            Book book = bookEntry.getValue();
+            if (book.getBookID() == bookID) {
+                int currentQuantity = book.getQuantity();
+                book.setQuantity(currentQuantity + numOfBookToReturn);
             }
-
-            //thêm sách trở lại thư viện
-            Set<Map.Entry<Integer, Book>> entries = BookManager.bookMap.entrySet();
-            for (Map.Entry<Integer, Book> bookEntry : entries) {
-                if (bookEntry.getValue().getBookID() == bookID) {
-                    int currentQuantity = bookEntry.getValue().getQuantity();
-                    bookEntry.getValue().setQuantity(currentQuantity + quantity);
-                }
-            }
-            System.err.println("Succeed!");
-            FileController.writeBookToFile(BookManager.bookMap, Main.bookFileName);
-            FileController.writeBookReaderToFile(bookReaderList, Main.bookReaderFileName);
-        } catch (Exception e) {
-            System.err.println("Your input is wrong!Do again!");
         }
-    }
+        FileController.writeBookToFile(BookManager.bookMap, Main.bookFileName);
 
+        // xóa sách ra khỏi list mượn của bạn đọc
+        for (int i = 0; i < bookReaderList.size(); i++) {
+            Reader reader = BookReaderManager.bookReaderList.get(i).getReader();
+            Book book = BookReaderManager.bookReaderList.get(i).getBook();
+            if (reader.getReaderID() == readerID) {
+                if (book.getBookID() == bookID) {
+                    int totalBooksBorrowed = bookReaderList.get(i).getBorrowNum();
+                    if (totalBooksBorrowed <= numOfBookToReturn) {
+                        numOfBookToReturn -= totalBooksBorrowed;
+                        bookReaderList.remove(bookReaderList.get(i));
+                    } else {
+                        totalBooksBorrowed = totalBooksBorrowed - numOfBookToReturn;
+                        bookReaderList.get(i).setBorrowNum(totalBooksBorrowed);
+                    }
+                }
+            }
+        }
+
+
+    }
 
     public static void displayBookReader() {
         for (BookReader bookReader : bookReaderList) {
@@ -230,68 +55,30 @@ public class BookReaderManager {
         }
     }
 
-    public static void searchBorrowBookByReader() {
-        try {
-            boolean isReaderExist = false;
-            int readerID;
-            do {
-                ReaderManager.displayReaders();
-                System.out.println("----------------------------------");
-                Scanner scanner = new Scanner(System.in);
-                System.out.println("Enter reader ID to search: ");
-                readerID = Integer.parseInt(scanner.nextLine());
-                for (BookReader bookReader : bookReaderList) {
-                    if (bookReader.getReader().getReaderID() == readerID) {
-                        isReaderExist = true;
-                    }
-                }
-                if (isReaderExist == false) {
-                    System.err.println("This reader is borrowing no book");
-                }
-            } while (!isReaderExist);
-
-
-            int borrowCount = 0;
-            for (BookReader bookReader : bookReaderList) {
-                if (bookReader.getReader().getReaderID() == readerID) {
-                    borrowCount += bookReader.getBorrowNum();
-                    bookReader.outputInfo();
-                }
+    public static void searchBorrowBookByReader(int readerID) {
+        int borrowCount = 0;
+        for (BookReader bookReader : bookReaderList) {
+            if (bookReader.getReader().getReaderID() == readerID) {
+                bookReader.outputInfo();
+                borrowCount += bookReader.getBorrowNum();
             }
-            System.out.println("------------------------------------");
-            System.out.println("Total of books this reader is borrowing = " + borrowCount);
-        } catch (Exception e) {
-            System.err.println("Your input is wrong!Do again!");
         }
-
+        System.out.println();
+        System.out.println("Total of books borrowed = " + borrowCount);
+        System.out.println();
     }
 
-    public static void searchBorrowReaderByBook() {
-        try {
-            Scanner scanner = new Scanner(System.in);
-            BookManager.displayBooks();
-            boolean isSearchBookExist;
-            int bookCount = 0;
-            do {
-                System.out.println("Enter book ID to search: ");
-                int bookID = Integer.parseInt(scanner.nextLine());
-                isSearchBookExist = false;
-                for (BookReader bookReader : bookReaderList) {
-                    if (bookReader.getBook().getBookID() == bookID) {
-                        isSearchBookExist = true;
-                        bookReader.outputInfo();
-                        bookCount += bookReader.getBorrowNum();
-                    }
-                }
-
-                if (isSearchBookExist == false) {
-                    System.err.println("There is no such book in the borrowing list!");
-                }
-            } while (!isSearchBookExist);
-            System.out.println("Total of this book borrowed = " + bookCount);
-        } catch (Exception e) {
-            System.err.println("Your input is wrong!Do again!");
+    public static void searchBorrowReaderByBook(int bookID) {
+        int borrowCount = 0;
+        for (BookReader bookReader : bookReaderList) {
+            if (bookReader.getBook().getBookID() == bookID) {
+                bookReader.outputInfo();
+                borrowCount += bookReader.getBorrowNum();
+            }
         }
+        System.out.println();
+        System.out.println("Total of books borrowed = " + borrowCount);
+        System.out.println();
     }
 
     public static void sortBooksBorrowed() {
@@ -330,6 +117,60 @@ public class BookReaderManager {
             System.out.println("bookID = " + bookEntry.getKey().getBookID() + "|" + "bookName = "
                     + bookEntry.getKey().getBookName() + "|" + "total = " + bookEntry.getValue());
         }
+    }
+
+    public static boolean checkIsTotalExceed10(int readerID) {
+        int total = 0;
+        for (BookReader bookReader : bookReaderList) {
+            if (bookReader.getReader().getReaderID() == readerID) {
+                total += bookReader.getBorrowNum();
+            }
+        }
+        return total >= 10;
+    }
+
+    public static boolean checkIsBookExceed3(int readerID, int bookID) {
+        int numOfBookBorrowed = countBookBorrowed(readerID, bookID);
+        return numOfBookBorrowed >= 3;
+    }
+
+    public static int countBookBorrowed(int readerID, int bookID) {
+        int numOfBookBorrowed = 0;
+        for (BookReader bookReader : bookReaderList) {
+            if (bookReader.getReader().getReaderID() == readerID &&
+                    bookReader.getBook().getBookID() == bookID) {
+                numOfBookBorrowed += bookReader.getBorrowNum();
+            }
+        }
+        return numOfBookBorrowed;
+    }
+
+    public static double calculateFee(double price, int numOfBookToBorrow, String state) {
+        double fee = 0;
+        if (state.equals("new")) {
+            fee = numOfBookToBorrow * price * 10 / 100;
+        } else if (state.equals("old")) {
+            fee = numOfBookToBorrow * price * 5 / 100;
+        }
+        return fee;
+    }
+
+    public static boolean checkIsReaderExist(int readerID) {
+        for (BookReader bookReader : bookReaderList) {
+            if (bookReader.getReader().getReaderID() == readerID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean checkIsBookExist(int bookID) {
+        for (BookReader bookReader : bookReaderList) {
+            if (bookReader.getBook().getBookID() == bookID) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

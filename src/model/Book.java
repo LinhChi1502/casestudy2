@@ -34,20 +34,12 @@ public class Book implements Serializable {
         this.publisher = publisher;
     }
 
-    public static int getId() {
-        return id;
-    }
-
     public static void setId(int id) {
         Book.id = id;
     }
 
     public int getBookID() {
         return bookID;
-    }
-
-    public void setBookID(int bookID) {
-        this.bookID = bookID;
     }
 
     public String getBookName() {
@@ -98,11 +90,11 @@ public class Book implements Serializable {
         this.publisher = publisher;
     }
 
-        public void outputInfo() {
+    public void outputInfo() {
         System.out.printf("%-16s%-30s%-20s%-28s%-19s%-16s%-13s", "bookID = " + bookID, "bookName = " + bookName,
                 "author = " + author, "specialization = " + specialization, "price = " + price,
                 "quantity = " + quantity, "publisher = " + publisher);
-        System.out.println("");
+        System.out.println();
 
 
     }

@@ -1,69 +1,19 @@
 package controller;
 
 import model.Reader;
+import view.Main;
 
 import java.util.*;
 
 public class ReaderManager {
     public static LinkedHashMap<Integer, Reader> readerMap = new LinkedHashMap<>();
 
-    public static void addReader() {
-        try {
-            Set<Map.Entry<Integer, Reader>> entries = readerMap.entrySet();
-
-            boolean isCheck = false;
-
-            if (!isCheck) {
-                changeReaderId();
-                isCheck = true;
-            }
-
-            System.out.println("-------------------------");
-            Scanner input = new Scanner(System.in);
-            System.out.println("Enter reader name: ");
-            String readerName = input.nextLine();
-
-            String phoneNumber;
-            boolean isExist = false;
-            do {
-                System.out.println("Enter phonenumber (10 numbers ): ");
-                phoneNumber = input.nextLine();
-                for (Map.Entry<Integer, Reader> entry : entries) {
-                    if (entry.getValue().getPhoneNumber().equals(phoneNumber)) {
-                        isExist = true;
-                        System.err.println("This phone number has already existed. Enter again!");
-                    } else {
-                        isExist = false;
-                    }
-                }
-            } while (!phoneNumber.matches("\\d{3}.\\d{3}.\\d{4}") || isExist);
-            String email;
-            boolean isEmailExist = false;
-            do {
-                System.out.println("Enter email: ");
-                email = input.nextLine();
-                for (Map.Entry<Integer, Reader> readerEntry : entries) {
-                    if (readerEntry.getValue().getEmail().equals(email)) {
-                        isEmailExist = true;
-                        System.err.println("This email has already existed. Enter again!");
-                        break;
-                    } else {
-                        isEmailExist = false;
-                    }
-                }
-            } while (isEmailExist || !email.matches("^(.*?)\\@gmail.com"));
-
-            System.out.println("Enter address: ");
-            String address = input.nextLine();
-
-            Reader reader = new Reader(0, readerName, phoneNumber, email, address);
-            readerMap.put(reader.getReaderID(), reader);
-        } catch (Exception e) {
-            System.err.println("Your input is wrong!Do again!");
-        }
+    public static void addReader(Reader reader) {
+        readerMap.put(reader.getReaderID(), reader);
+        FileController.writeReaderToFile(ReaderManager.readerMap, Main.readerFileName);
     }
 
-    private static void changeReaderId() {
+    public static void changeReaderId() {
         Set<Map.Entry<Integer, Reader>> entrySet = readerMap.entrySet();
         ArrayList<Map.Entry<Integer, Reader>> readerArrayList = new ArrayList<>(entrySet);
         if (readerArrayList.size() > 0) {
@@ -79,155 +29,55 @@ public class ReaderManager {
             readerEntry.getValue().outputInfo();
         }
     }
+    public static void editReader(Reader reader, String newReaderName, String newPhoneNumber, String newEmail,
+                                  String newAddress) {
+        reader.setReaderName(newReaderName);
+        reader.setPhoneNumber(newPhoneNumber);
+        reader.setEmail(newEmail);
+        reader.setAddress(newAddress);
+        FileController.writeReaderToFile(ReaderManager.readerMap, Main.readerFileName);
+    }
 
-    public static void editReader() {
-        try {
-            ReaderManager.displayReaders();
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Enter reader ID to edit: ");
-            int readerID = Integer.parseInt(scanner.nextLine());
-            Set<Map.Entry<Integer, Reader>> readerEntries = readerMap.entrySet();
-            boolean isReaderExist = false;
-            for (Map.Entry<Integer, Reader> readerEntry : readerEntries) {
-                if (readerEntry.getValue().getReaderID() == readerID) {
-                    isReaderExist = true;
-                    System.out.println("Enter new name: ");
-                    String newReaderName = scanner.nextLine();
+    public static void deleteReader(int readerID) {
+        readerMap.remove(readerID);
+        FileController.writeReaderToFile(ReaderManager.readerMap, Main.readerFileName);
+    }
 
-                    String newPhoneNumber;
-//                    boolean isPhoneExist = false;
-                    do {
-                        System.out.println("Enter new phone number (10 numbers): ");
-                        newPhoneNumber = scanner.nextLine();
-//                        for (Map.Entry<Integer, Reader> entry : readerEntries) {
-//                            if (entry.getValue().getPhoneNumber().equals(newPhoneNumber)) {
-//                                isPhoneExist = true;
-//                                System.err.println("This phone number has already existed. Enter again!");
-//                            } else {
-//                                isPhoneExist = false;
-//                            }
-//                        }
-                    } while (!newPhoneNumber.matches("\\d{3}.\\d{3}.\\d{4}"));
-
-//                    boolean isEmailExist = false;
-                    String newEmail;
-//                    do {
-                        System.out.println("Enter new email: ");
-                        newEmail = scanner.nextLine();
-//                        for (Map.Entry<Integer, Reader> entry : readerEntries) {
-//                            if (entry.getValue().getEmail().equals(newEmail)) {
-//                                isEmailExist = true;
-//                                System.err.println("This email has already existed. Enter again!");
-//                            } else {
-//                                isEmailExist = false;
-//                            }
-//                        }
-//                    } while (isEmailExist);
-
-                    System.out.println("Enter new address: ");
-                    String newAddress = scanner.nextLine();
-
-                    readerEntry.getValue().setReaderName(newReaderName);
-                    readerEntry.getValue().setPhoneNumber(newPhoneNumber);
-                    readerEntry.getValue().setEmail(newEmail);
-                    readerEntry.getValue().setAddress(newAddress);
-                }
+    public static void searchReaderByName(String readerName) {
+        Set<Map.Entry<Integer, Reader>> readerEntries = ReaderManager.readerMap.entrySet();
+        boolean isSearchNameExist = false;
+        for (Map.Entry<Integer, Reader> entry : readerEntries) {
+            Reader reader = entry.getValue();
+            String searchReaderName = ConvertVieToEng.removeAccent(reader.getReaderName()).toLowerCase();
+            if (searchReaderName.contains(readerName)) {
+                isSearchNameExist = true;
+                reader.outputInfo();
             }
-            if (!isReaderExist) {
-                System.err.println("There is no such reader!");
-            }
-        } catch (Exception e) {
-            System.err.println("Your input is wrong!Do again!");
+        }
+        if (isSearchNameExist == false) {
+            System.err.println("There is no such reader");
         }
 
     }
 
-    public static void deleteReader() {
-        try {
-            ReaderManager.displayReaders();
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Enter reader ID to delete: ");
-            int readerID = Integer.parseInt(scanner.nextLine());
-            Set<Map.Entry<Integer, Reader>> entries = readerMap.entrySet();
-            ArrayList<Map.Entry<Integer, Reader>> arrayList = new ArrayList<>(entries);
-            boolean isSearchReader = false;
-            for (Map.Entry<Integer, Reader> entry : arrayList) {
-                if (entry.getValue().getReaderID() == readerID) {
-                    isSearchReader = true;
-                    readerMap.remove(entry.getKey());
-                    System.err.println("Reader Deleted");
-                }
+    public static void searchReaderByAddress(String address) {
+        Set<Map.Entry<Integer, Reader>> readerEntries = readerMap.entrySet();
+        boolean isSearchAddressExist = false;
+        for (Map.Entry<Integer, Reader> entry : readerEntries) {
+            Reader reader = entry.getValue();
+            String searchAddress = ConvertVieToEng.removeAccent(reader.getAddress()).toLowerCase();
+            if (searchAddress.equalsIgnoreCase(address)
+                    || searchAddress.contains(address)) {
+                isSearchAddressExist = true;
+                reader.outputInfo();
             }
-            if (!isSearchReader) {
-                System.err.println("There is no such reader!");
-            }
-        } catch (Exception e) {
-            System.err.println("Your input is wrong!Do again!");
         }
-
-    }
-
-    public static void searchReaderByName() {
-        try {
-            System.out.println("Enter reader name to search: ");
-            String readerName = ConvertVieToEng.removeAccent(new Scanner(System.in).nextLine()).toLowerCase();
-            Set<Map.Entry<Integer, Reader>> entries = readerMap.entrySet();
-            boolean isSearchNameExist = false;
-            for (Map.Entry<Integer, Reader> entry : entries) {
-                String searchReaderName = ConvertVieToEng.removeAccent(entry.getValue().getReaderName()).toLowerCase();
-                if (searchReaderName.contains(readerName)) {
-                    isSearchNameExist = true;
-                    entry.getValue().outputInfo();
-                }
-            }
-            if (isSearchNameExist == false) {
-                System.err.println("There is no such reader");
-            }
-        } catch (Exception e) {
-            System.err.println("Your input is wrong!Do again!");
-        }
-
-    }
-
-    public static void searchReaderByAddress() {
-        try {
-            System.out.println("Enter address to search: ");
-            String address = ConvertVieToEng.removeAccent(new Scanner(System.in).nextLine()).toLowerCase();
-
-            Set<Map.Entry<Integer, Reader>> entries = readerMap.entrySet();
-            boolean isSearchAddressExist = false;
-            for (Map.Entry<Integer, Reader> entry : entries) {
-                String searchAddress = ConvertVieToEng.removeAccent(entry.getValue().getAddress()).toLowerCase();
-                if (searchAddress.equalsIgnoreCase(address)
-                        || searchAddress.contains(address)) {
-                    isSearchAddressExist = true;
-                    entry.getValue().outputInfo();
-                }
-            }
-            if (isSearchAddressExist == false) {
-                System.err.println("There is no such address");
-            }
-        } catch (Exception e) {
-            System.err.println("Your input is wrong!Do again!");
-        }
-
-    }
-
-    public static void sortReaderByName() {
-        System.out.println("-----------------------------");
-        System.out.println("1. Ascending order");
-        System.out.println("2. Descending order");
-        System.out.println("-----------------------------");
-        System.out.println("Enter your choice: ");
-        int choice = new Scanner(System.in).nextInt();
-
-        switch (choice) {
-            case 1 -> sortReaderNameAscending();
-            case 2 -> sortReaderNameDescending();
+        if (isSearchAddressExist == false) {
+            System.err.println("There is no such address");
         }
     }
 
-    private static void sortReaderNameAscending() {
+    public static void sortReaderNameAscending() {
         Set<Map.Entry<Integer, Reader>> entries = readerMap.entrySet();
         ArrayList<Map.Entry<Integer, Reader>> arrayList = new ArrayList<>(entries);
         Collections.sort(arrayList, new Comparator<Map.Entry<Integer, Reader>>() {
@@ -244,7 +94,7 @@ public class ReaderManager {
         }
     }
 
-    private static void sortReaderNameDescending() {
+    public static void sortReaderNameDescending() {
         Set<Map.Entry<Integer, Reader>> entries = readerMap.entrySet();
         ArrayList<Map.Entry<Integer, Reader>> arrayList = new ArrayList<>(entries);
         Collections.sort(arrayList, new Comparator<Map.Entry<Integer, Reader>>() {
@@ -259,5 +109,15 @@ public class ReaderManager {
         for (Map.Entry<Integer, Reader> entry : arrayList) {
             entry.getValue().outputInfo();
         }
+    }
+
+    public static boolean checkReaderExist(int readerID) {
+        Set<Map.Entry<Integer, Reader>> readerEntries = readerMap.entrySet();
+        for (Map.Entry<Integer, Reader> readerEntry : readerEntries) {
+            if (readerEntry.getValue().getReaderID() == readerID) {
+                return true;
+            }
+        }
+        return false;
     }
 }
