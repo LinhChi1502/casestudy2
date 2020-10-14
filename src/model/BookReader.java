@@ -8,9 +8,6 @@ public class BookReader implements Serializable {
     private int borrowNum;
     private String state;
 
-    public BookReader() {
-    }
-
     public BookReader(Reader reader, Book book, int borrowNum, String state) {
         this.reader = reader;
         this.book = book;

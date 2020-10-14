@@ -12,7 +12,7 @@ public class Main {
     public static String bookFileName = "books.dat";
     public static String bookReaderFileName = "bookReader.dat";
 
-    public static void menu() {
+    public static void menuForManager() {
         try {
             System.out.println("----------------BOOK MANAGEMENT----------------");
             System.out.println("1. Add new book");
@@ -28,16 +28,8 @@ public class Main {
             System.out.println("10. Delete reader");
             System.out.println("11. Search reader");
             System.out.println("12. Sort reader list by name");
-            System.out.println("----------------BORROWING MANAGEMENT--------------");
-            System.out.println("13. Borrow new book");
-            System.out.println("14. Return book");
-            System.out.println("15. Show borrowing list");
-            System.out.println("16. Search book borrowed by reader");
-            System.out.println("17. Search reader borrowing by book");
-            System.out.println("18. Sort books borrowed");
             System.out.println("-------------------------------------");
             System.out.println("0. Exit");
-            System.out.println("-------------------------------------");
             System.out.println("Enter your choice: ");
             Scanner scanner = new Scanner(System.in);
             int choice = Integer.parseInt(scanner.nextLine());
@@ -49,6 +41,7 @@ public class Main {
                     System.out.println("-------------------------");
                     System.out.println("Enter bookname: ");
                     String bookName = scanner.nextLine();
+
                     int bookID = 0;
                     for (Map.Entry<Integer, Book> bookEntry : bookEntries) {
                         Book book = bookEntry.getValue();
@@ -62,7 +55,6 @@ public class Main {
                     int quantity = Integer.parseInt(scanner.nextLine());
 
                     boolean isIdCheck = false;
-
                     if (!isIdCheck) {
                         BookManager.changeBookId();
                         isIdCheck = true;
@@ -370,7 +362,34 @@ public class Main {
                         case 2 -> ReaderManager.sortReaderNameDescending();
                     }
                 }
-                case 13 -> {
+
+                case 0 -> {
+                    System.err.println("Thank you!");
+                    System.exit(0);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Your input is wrong!Do again!");
+        }
+    }
+
+    public static void menuforLibrarian() {
+        try {
+            System.out.println("----------------BORROWING MANAGEMENT--------------");
+            System.out.println("1. Borrow new book");
+            System.out.println("2. Return book");
+            System.out.println("3. Show borrowing list");
+            System.out.println("4. Search book borrowed by reader");
+            System.out.println("5. Search reader borrowing by book");
+            System.out.println("6. Sort books borrowed");
+            System.out.println("-------------------------------------");
+            System.out.println("0. Exit");
+            System.out.println("-------------------------------------");
+
+            Scanner scanner = new Scanner(System.in);
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1 -> {
                     boolean isReaderExist;
                     int readerID;
                     do {
@@ -440,7 +459,7 @@ public class Main {
                         }
                     }
                 }
-                case 14 -> {
+                case 2 -> {
                     boolean isReaderExist;
                     int readerID;
                     do {
@@ -490,8 +509,8 @@ public class Main {
                     System.err.println("Succeed!");
                     FileController.writeBookReaderToFile(BookReaderManager.bookReaderList, Main.bookReaderFileName);
                 }
-                case 15 -> BookReaderManager.displayBookReader();
-                case 16 -> {
+                case 3 -> BookReaderManager.displayBookReader();
+                case 4 -> {
                     int readerID;
                     boolean isReaderExist;
                     do {
@@ -507,7 +526,7 @@ public class Main {
 
                     BookReaderManager.searchBorrowBookByReader(readerID);
                 }
-                case 17 -> {
+                case 5 -> {
                     boolean isBookExist;
                     int bookID;
                     do {
@@ -522,7 +541,7 @@ public class Main {
 
                     BookReaderManager.searchBorrowReaderByBook(bookID);
                 }
-                case 18 -> BookReaderManager.sortBooksBorrowed();
+                case 6 -> BookReaderManager.sortBooksBorrowed();
                 case 0 -> {
                     System.err.println("Thank you!");
                     System.exit(0);
@@ -537,9 +556,36 @@ public class Main {
         ReaderManager.readerMap = FileController.readReaderFromFile(readerFileName);
         BookManager.bookMap = FileController.readBookFromFile(bookFileName);
         BookReaderManager.bookReaderList = FileController.readBookReaderFromFile(bookReaderFileName);
-        while (true) {
-            menu();
-        }
-    }
+        userManager.setManagerList();
+        Scanner scanner = new Scanner(System.in);
+        boolean isDirector;
+        boolean isLibrarian;
+        do {
+            System.out.println("Enter username: ");
+            String userName = scanner.nextLine();
+            isDirector = userManager.checkIsDirector(userName);
+            isLibrarian = userManager.checkIsLibrarian(userName);
+            if (isDirector || isLibrarian) {
+                boolean checkIsPassword;
+                do {
+                    System.out.println("Enter password: ");
+                    String password = scanner.nextLine();
+                    checkIsPassword = userManager.checkIsPassword(userName, password);
+                } while (!checkIsPassword);
 
+                if (isDirector) {
+                    menuForManager();
+                } else if (isLibrarian) {
+                    menuforLibrarian();
+                }
+            } else {
+                System.err.println("username is not found!");
+            }
+        } while (!isDirector && !isLibrarian);
+
+    }
 }
+
+
+
+
